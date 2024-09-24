@@ -7,5 +7,5 @@
 
 
 fn main() {
-    println!("Hello world!");
+    println!("greeting to the world");
 }
