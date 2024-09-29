@@ -7,9 +7,7 @@
 // Execute `rustlings hint threads2` or use the `hint` watch subcommand for a
 // hint.
 
-// I AM NOT DONE
-
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
 
@@ -18,7 +16,7 @@ struct JobStatus {
 }
 
 fn main() {
-    let status = Arc::new(JobStatus { jobs_completed: 0 });
+    let status = Arc::new(Mutex::new(JobStatus { jobs_completed: 0 }));
     let mut handles = vec![];
     for _ in 0..10 {
         let status_shared = Arc::clone(&status);
@@ -33,8 +31,9 @@ fn main() {
     for handle in handles {
         handle.join().unwrap();
         // TODO: Print the value of the JobStatus.jobs_completed. Did you notice
-        // anything interesting in the output? Do you have to 'join' on all the
+        // anything interesting in the output?
+        //Do you have to 'join' on all the
         // handles?
-        println!("jobs completed {}", status.lock().unwrap().job_completed);
+        println!("jobs completed {}", status.lock().unwrap().jobs_completed);
     }
 }
