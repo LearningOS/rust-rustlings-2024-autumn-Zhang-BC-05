@@ -2,7 +2,6 @@
     heap
     This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
 
 use std::cmp::Ord;
 use std::default::Default;
@@ -37,9 +36,31 @@ where
     }
 
     pub fn add(&mut self, value: T) {
-        
+        self.count += 1;
+        self.items.push(value);
+        self.heapify_up(self.count);
+    }
+    pub fn heapify_up(&mut self, idx: usize) {
+        let mut idx = idx;
+        while idx > 1 && (self.comparator)(&self.items[idx], &self.items[self.parent_idx(idx)]) {
+            let parent_idx = self.parent_idx(idx);
+            self.items.swap(idx, parent_idx);
+            idx = self.parent_idx(idx);
+        }
     }
 
+    pub fn heapify_down(&mut self, idx: usize) {
+        let mut idx = idx;
+        while self.children_present(idx) {
+            let smallest_child_idx = self.smallest_child_idx(idx);
+            if (self.comparator)(&self.items[smallest_child_idx], &self.items[idx]) {
+                self.items.swap(smallest_child_idx, idx);
+                idx = smallest_child_idx;
+            } else {
+                break;
+            }
+        }
+    }
     fn parent_idx(&self, idx: usize) -> usize {
         idx / 2
     }
@@ -57,14 +78,16 @@ where
     }
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
-        let left_idx = self.left_child_idx(idx);
-        let right_idx = self.right_child_idx(idx);
-        if right_idx > self.count {
-            left_idx
-        } else if (self.comparator)(&self.items[left_idx], &self.items[right_idx]) {
-            left_idx
+        let left_child_idx = self.left_child_idx(idx);
+        let right_child_idx = self.right_child_idx(idx);
+        let left_child = &self.items.get(left_child_idx);
+        let right_child = &self.items.get(right_child_idx);
+        if right_child_idx >= self.count
+            || (self.comparator)(&self.items[left_child_idx], &self.items[right_child_idx])
+        {
+            left_child_idx
         } else {
-            right_idx
+            right_child_idx
         }
     }
 }
@@ -91,23 +114,12 @@ where
     type Item = T;
 
     fn next(&mut self) -> Option<T> {
-        if self.items.is_empty() {
+        if self.is_empty() {
             return None;
         }
         let root = self.items.swap_remove(1);
         self.count -= 1;
-        if self.count > 0 {
-            self.items[1] = self.items.pop().unwrap();
-            let mut idx = 1;
-            while self.children_present(idx) {
-                let smallest_child_idx = self.smallest_child_idx(idx);
-                if (self.comparator)(&self.items[idx], &self.items[smallest_child_idx]) {
-                    break;
-                }
-                self.items.swap(idx, smallest_child_idx);
-                idx = smallest_child_idx;
-            }
-        }
+        self.heapify_down(1);
         Some(root)
     }
 }
