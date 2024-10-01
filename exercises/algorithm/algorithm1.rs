@@ -2,11 +2,9 @@
     single linked list merge
     This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
-use std::vec::*;
 
 #[derive(Debug)]
 struct Node<T> {
@@ -66,16 +64,38 @@ impl<T> LinkedList<T> {
             },
         }
     }
-    pub fn merge(list_a: LinkedList<T>, list_b: LinkedList<T>) -> Self {
-        //TODO
-        Self {
-            length: 0,
-            start: None,
-            end: None,
+
+    pub fn merge(list_a: LinkedList<T>, list_b: LinkedList<T>) -> LinkedList<T>
+    where
+        T: Clone + Ord,
+    {
+        let mut list_c = LinkedList::<T>::new();
+        let mut node_a = list_a.start;
+        let mut node_b = list_b.start;
+        while node_a.is_some() && node_b.is_some() {
+            let node_a_ref = unsafe { node_a.unwrap().as_ref() };
+            let node_b_ref = unsafe { node_b.unwrap().as_ref() };
+            if node_a_ref.val < node_b_ref.val {
+                list_c.add(node_a_ref.val.clone());
+                node_a = node_a_ref.next;
+            } else {
+                list_c.add(node_b_ref.val.clone());
+                node_b = node_b_ref.next;
+            }
         }
+        while node_a.is_some() {
+            let node_a_ref = unsafe { node_a.unwrap().as_ref() };
+            list_c.add(node_a_ref.val.clone());
+            node_a = node_a_ref.next;
+        }
+        while node_b.is_some() {
+            let node_b_ref = unsafe { node_b.unwrap().as_ref() };
+            list_c.add(node_b_ref.val.clone());
+            node_b = node_b_ref.next;
+        }
+        list_c
     }
 }
-
 impl<T> Display for LinkedList<T>
 where
     T: Display,
